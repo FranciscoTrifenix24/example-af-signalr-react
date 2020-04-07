@@ -11,11 +11,11 @@ namespace ConsoleService
     {
         static async Task Main()
         {
-            var connectionString = "Endpoint=sb://paid-bus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=bNtphJHh0HDlU4cLwWwpfRbfSyt4UUCSFiEfK+k1JcY=";
+            var connectionString = "Endpoint=sb://paid-bus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=g+v1x2DzE3fB7GKa+LB3YmOszK79sXAke0mmWYtm2Jk=";
 
             Console.WriteLine("Creating Service Bus sender....");
             
-            var sender = new MessageSender(connectionString, "test-queue");
+            var sender = new MessageSender(connectionString, "agroqueue");
 
             await sender.SendAsync(new Message(Encoding.UTF8.GetBytes($"mensaje 1"))
             {

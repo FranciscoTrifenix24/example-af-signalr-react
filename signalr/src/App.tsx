@@ -1,15 +1,17 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {HubConnectionBuilder, LogLevel} from '@aspnet/signalr';
+import {HubConnectionBuilder, LogLevel, HttpTransportType} from '@aspnet/signalr';
 
 
 function App() {
   const connection = new HubConnectionBuilder()
-      .withUrl("http://localhost:7071/api")
+      .withUrl("http://localhost:7071/api/v1.0/messages/binding",{ transport : HttpTransportType.WebSockets, accessTokenFactory : ()=>"token_test"})
+      
       .configureLogging(LogLevel.Information)
-           
+      
       .build();
+
 
     
 
@@ -20,7 +22,8 @@ function App() {
     connection.start()
         .then(() => {
             console.log("start");
-            connection.invoke("send", "Hello")
+            connection.send("SendMessage", "Hello");
+            console.log("invoke");
 
         });
 
