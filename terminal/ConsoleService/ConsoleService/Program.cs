@@ -17,10 +17,11 @@ namespace ConsoleService
             
             var sender = new MessageSender(connectionString, "agroqueue");
 
-            await sender.SendAsync(new Message(Encoding.UTF8.GetBytes($"mensaje 1"))
+            var msj = new Message(Encoding.UTF8.GetBytes($"mensaje 1"))
             {
                 SessionId = "sesion-mensaje1"
-            });
+            };
+            await sender.SendAsync(msj);
 
             await sender.SendAsync(new Message(Encoding.UTF8.GetBytes($"mensaje 2"))
             { 
