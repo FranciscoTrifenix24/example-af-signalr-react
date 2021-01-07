@@ -10,11 +10,31 @@ using System.Threading;
 using Microsoft.Azure.WebJobs.Extensions.SignalRService;
 
 namespace af_test {
+
+    /// <summary>
+    /// Ejemplo de bus en Azure function, que permitirá poder realizar flujos
+    /// </summary>
     public static class ExampleBus {
 
-        private const string AUTH_HEADER_NAME = "Authorization";
-        private const string BEARER_PREFIX = "Bearer ";
 
+        /// <summary>
+        /// nombre en la cabecera para la autorización.
+        /// </summary>
+        private const string AUTH_HEADER_NAME = "Authorization";
+
+        /// <summary>
+        /// Bearer es normalmente usado en las cabeceras http para autenticación.
+        /// </summary>
+        private const string BEARER_PREFIX = "Bearer ";
+        
+        
+        /// <summary>
+        /// Funcion de Servicebus con signelR
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="signalRMessages"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
         [FunctionName("Test-bus")]
         public static async Task RunBus(
             [ServiceBusTrigger("agroqueue", Connection = "ServiceBusConnectionString", IsSessionsEnabled = true)]Message message,
@@ -31,6 +51,13 @@ namespace af_test {
                 });
         }
 
+
+        /// <summary>
+        /// Función para abrir conexión con signalr
+        /// </summary>
+        /// <param name="req">requerimiento normal http</param>
+        /// <param name="connectionInfo">conexión de signalr</param>
+        /// <returns></returns>
         [FunctionName("negotiate")]
         public static SignalRConnectionInfo Negotiate(
             [HttpTrigger(AuthorizationLevel.Anonymous)]HttpRequest req,
@@ -38,7 +65,13 @@ namespace af_test {
             return connectionInfo;
         }
 
-        //Test with imperative binding
+        /// <summary>
+        /// Procesa mensaje de cliente
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="binder"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
         [FunctionName("MessagesNegotiateBinding")]
         public static IActionResult NegotiatBinding(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "v1.0/messages/binding/negotiate")] HttpRequest req,
@@ -47,7 +80,7 @@ namespace af_test {
             if (req.Headers.ContainsKey(AUTH_HEADER_NAME) && req.Headers[AUTH_HEADER_NAME].ToString().StartsWith(BEARER_PREFIX)) {
                 var token = req.Headers["Authorization"].ToString().Substring(BEARER_PREFIX.Length);
                 log.LogInformation("with binding " + token);
-                // extract userId from token
+                
                 var userId = "userIdExctractedFromToken"; // needs real impl...
                 var connectionInfo = binder.Bind<SignalRConnectionInfo>(new SignalRConnectionInfoAttribute { HubName = "chat", UserId = userId });
                 log.LogInformation("negotiated " + connectionInfo);
@@ -59,6 +92,12 @@ namespace af_test {
                 return new BadRequestObjectResult("No access token submitted.");
         }
 
+        /// <summary>
+        /// envía mensaje a clientes
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="signalRMessages"></param>
+        /// <returns></returns>
         [FunctionName("SendMessage")]
         public static Task SendMessage(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post")]object message,
